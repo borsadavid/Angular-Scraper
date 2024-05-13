@@ -1,8 +1,9 @@
-import { Component, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectorRef, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { WebsocketService } from '../websocket-service/websocket.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-websocket',
@@ -14,10 +15,11 @@ import { CommonModule } from '@angular/common';
 export class WebsocketComponent implements OnDestroy {
   message: string = '';
   receivedMessages: string[] = [];
-  branches: { [key: string]: string[] } = {};
+  branches: { [key: string]: { messages: string[], expanded: boolean } } = {};
   private socketSubscription: Subscription | undefined;
   searchQuery: string = '';
-  filteredBranches: { key: string, value: string[] }[] = [];
+  filteredBranches: { key: string, value: { messages: string[], expanded: boolean } }[] = [];
+  @ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport | undefined;
 
   constructor(private websocketService: WebsocketService, private cdr: ChangeDetectorRef) {
     this.connectWebSocket();
@@ -46,27 +48,19 @@ export class WebsocketComponent implements OnDestroy {
 
   createBranches(receivedMessages: string[]): void {
     for (const message of receivedMessages) {
-      let path = message;
-
+      let domain = '';
       try {
         const url = new URL(message);
-        path = url.pathname;
+        domain = url.hostname;
       } catch (error) {
         console.error('Invalid URL:', error);
       }
 
-      const segments = path.split('/').filter(Boolean);
-      let currentPath = '';
-
-      for (const segment of segments) {
-        currentPath += `/${segment}`;
-
-        if (!this.branches[currentPath]) {
-          this.branches[currentPath] = [message];
-        } else {
-          if (!this.branches[currentPath].includes(message)) {
-            this.branches[currentPath].push(message);
-          }
+      if (!this.branches[domain]) {
+        this.branches[domain] = { messages: [message], expanded: false };
+      } else {
+        if (!this.branches[domain].messages.includes(message)) {
+          this.branches[domain].messages.push(message);
         }
       }
     }
@@ -88,4 +82,9 @@ export class WebsocketComponent implements OnDestroy {
   sendMessage(): void {
     this.websocketService.sendMessage(this.message);
   }
+
+  toggleBranch(branch: { key: string, value: { messages: string[], expanded: boolean } }): void {
+    branch.value.expanded = !branch.value.expanded;
+  }
+
 }
