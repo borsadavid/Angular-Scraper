@@ -1,14 +1,17 @@
 <div class="websocket-container">
   <div class="input-container">
-    <input type="text" [(ngModel)]="searchQuery" placeholder="Search branches..." class="search-input" (keyup)="filterBranches()" [disabled]="filteredBranches.length === 0">
+    <input type="text" [(ngModel)]="searchQuery" placeholder="Search branches..." class="search-input" (keyup)="filterBranches()">
     <input type="text" [(ngModel)]="message" placeholder="Search for a domain e.g: youtube.com" class="message-input" (keyup.enter)="sendMessage()">
     <button (click)="sendMessage()" class="send-button">Send</button>
   </div>
   <div class="messages-container">
     <div class="branch" *ngFor="let branch of filteredBranches">
-      <h3>{{ branch.key }}</h3>
-      <ul>
-        <li *ngFor="let link of branch.value">
+      <div class="branch-header" (click)="toggleBranch(branch)">
+        <h3>{{ branch.key }}</h3>
+        <button>{{ branch.value.expanded ? 'Collapse' : 'Expand' }}</button>
+      </div>
+      <ul *ngIf="branch.value.expanded">
+        <li *ngFor="let link of branch.value.messages">
           <a [href]="link">{{ link }}</a>
         </li>
       </ul>
