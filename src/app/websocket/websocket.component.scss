@@ -43,6 +43,39 @@
   transition: background-color 0.3s;
 }
 
+.stop-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  background-color: #af4c4c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.restart-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  background-color: #c3cf12;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.cy-container {
+  width: 100%;
+  height: 600px;
+  border: 1px solid #ccc;
+}
+
+.stop-button:disabled {
+  background-color: #919b9e;
+  cursor: not-allowed;
+}
+
 .send-button:hover {
   background-color: #45a049;
 }
